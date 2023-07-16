@@ -1,37 +1,71 @@
 from tkinter import *
+import pandas
+import random
 
 BACKGROUND_COLOR = "#B1DDC6"
 FONT_NAME = "Ariel"
-
 
 window = Tk()
 window.title("Flash-Card")
 window.config(bg=BACKGROUND_COLOR, padx=50, pady=50)
 
-# Back Canvas
-# canvas_back = Canvas(width=800, height=526, highlightthickness=0, bg=BACKGROUND_COLOR)
-# back_image = PhotoImage(file="./images/card_back.png")
-# canvas_back.create_image(400, 263, image=back_image)
-# canvas_back.grid(column=0, row=0, columnspan=2)
+# Read CSV File
+data = pandas.read_csv("./language-data/english-indonesian.csv")
+new_dict = data.to_dict(orient="records")
+
+
+# Generate Random Word
+def generate_random_word():
+    # Generate random english word from new_dict
+    random_english_choice = random.choice(new_dict)
+    english_word = random_english_choice["English"]
+
+    # Change canvas_front text to random english word
+    canvas.itemconfig(card_title, text="English", fill="black")
+    canvas.itemconfig(card_word, text=f"{english_word}", fill="black")
+    canvas.itemconfig(card_image, image=old_image)
+
+    window.after(3000, flip_card)
+
+
+# Flip The card after 3 sec
+def flip_card():
+    window.after_cancel(delay)
+
+    # Generate random indonesian word from new_dict
+    random_indonesian_choice = random.choice(new_dict)
+    indonesian_word = random_indonesian_choice["Indonesian"]
+
+    # Change the card_image,card_title, and card_word
+    canvas.itemconfig(card_image, image=new_image)
+    canvas.itemconfig(card_title, text="Indonesian", fill="white")
+    canvas.itemconfig(card_word, text=f"{indonesian_word}", fill="white")
+
 
 # Front Canvas
-canvas_front = Canvas(width=800, height=526, highlightthickness=0, bg=BACKGROUND_COLOR)
-front_image = PhotoImage(file="./images/card_front.png")
-canvas_front.create_image(400, 263, image=front_image)
-canvas_front.create_text(390, 150, text="English", font=(FONT_NAME, 40, "italic"))
-canvas_front.create_text(390, 263, text="Word", font=(FONT_NAME, 60, "bold"))
-canvas_front.grid(column=0, row=0, columnspan=2)
+canvas = Canvas(width=800, height=526, highlightthickness=0, bg=BACKGROUND_COLOR)
+
+# Create a background canvas from card_front_png
+old_image = PhotoImage(file="./images/card_front.png")
+new_image = PhotoImage(file="./images/card_back.png")
+card_image = canvas.create_image(400, 263, image=old_image)
+
+# Create text in canvas_front
+card_title = canvas.create_text(390, 150, text="", font=(FONT_NAME, 40, "italic"))
+card_word = canvas.create_text(390, 263, text="", font=(FONT_NAME, 60, "bold"))
+canvas.grid(column=0, row=0, columnspan=2)
 
 # Wrong button
 wrong_button_image = PhotoImage(file="./images/wrong.png")
-wrong_button = Button(image=wrong_button_image, highlightthickness=0)
+wrong_button = Button(image=wrong_button_image, highlightthickness=0, command=generate_random_word)
 wrong_button.grid(column=0, row=1)
 
 # Right Button
 right_button_image = PhotoImage(file="./images/right.png")
-right_button = Button(image=right_button_image, highlightthickness=0)
+right_button = Button(image=right_button_image, highlightthickness=0, command=generate_random_word)
 right_button.grid(column=1, row=1)
 
-
+generate_random_word()
+delay = window.after(3000, flip_card)
 
 window.mainloop()
