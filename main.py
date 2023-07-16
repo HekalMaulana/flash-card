@@ -1,1 +1,1 @@
-print("Hello World")
+BACKGROUND_COLOR = "#B1DDC6"
